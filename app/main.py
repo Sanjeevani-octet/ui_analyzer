@@ -121,7 +121,7 @@ async def get_playwright_screenshot(url: str):
 
             # Override body overflow to enable scrolling
             await page.evaluate("document.body.style.overflow = 'visible'")
-            await page.wait_for_load_state('networkidle')
+            # await page.wait_for_load_state('networkidle')
 
             # Scroll to the bottom to force lazy-loaded content to appear
             await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")

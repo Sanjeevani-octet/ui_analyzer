@@ -154,7 +154,10 @@ async def test_screenshot_issue(url):
             "iframes": iframes
         }
 
-print(asyncio.run(test_screenshot_issue("https://www.chiragpariyani.com/")))
+@app.get("/debug-screenshot")
+async def debug_screenshot(url: str):
+    result = await test_screenshot_issue(url)
+    return result
 
 @app.post("/analyze-ui")
 async def analyze_ui(

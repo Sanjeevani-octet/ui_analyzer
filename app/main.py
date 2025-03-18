@@ -113,7 +113,8 @@ async def get_playwright_screenshot(url: str):
             print('response', response)
             if response is None or not response.ok:
                 raise Exception(f"Failed to load {url}, status: {response.status}")
-            await page.wait_for_timeout(3000)
+            # await page.wait_for_timeout(3000)
+            await page.wait_for_load_state('networkidle')
             print("Taking screenshot...")
             screenshot = await page.screenshot(full_page=True, type='png')
             return screenshot

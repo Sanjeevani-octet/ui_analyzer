@@ -124,6 +124,39 @@ async def get_playwright_screenshot(url: str):
         finally:
             await browser.close()
 
+def test_screenshot_issue(url):
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        response = page.goto(url, timeout=30000)
+
+        if response is None or not response.ok:
+            return f"Failed to load {url}, status: {response.status}"
+
+        # Check for lazy-loaded images
+        lazy_images = page.evaluate("() => document.querySelectorAll('img[loading=\"lazy\"]').length")
+
+        # Check for scrolling issues
+        body_overflow = page.evaluate("() => getComputedStyle(document.body).overflow")
+
+        # Check if the page dynamically loads content
+        js_loaded_content = page.evaluate("() => document.body.innerHTML.includes('scripts')")
+
+        # Check if an iframe is used
+        iframes = page.evaluate("() => document.querySelectorAll('iframe').length")
+
+        browser.close()
+
+        return {
+            "lazy_images_count": lazy_images,
+            "body_overflow": body_overflow,
+            "js_loaded_content": js_loaded_content,
+            "iframes": iframes
+        }
+
+print(test_screenshot_issue("https://www.chiragpariyani.com/"))
+
+
 
 @app.post("/analyze-ui")
 async def analyze_ui(

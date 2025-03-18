@@ -113,6 +113,14 @@ async def get_playwright_screenshot(url: str):
             print('response', response)
             if response is None or not response.ok:
                 raise Exception(f"Failed to load {url}, status: {response.status}")
+
+            # Force lazy-loaded images to load
+            await page.evaluate('''() => {
+                document.querySelectorAll('img[loading="lazy"]').forEach(img => img.loading = 'eager');
+            }''')
+
+            # Override body overflow to enable scrolling
+            await page.evaluate("document.body.style.overflow = 'visible'")
             await page.wait_for_load_state('networkidle')
 
             # Scroll to the bottom to force lazy-loaded content to appear

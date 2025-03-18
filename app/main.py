@@ -124,28 +124,28 @@ async def get_playwright_screenshot(url: str):
         finally:
             await browser.close()
 
-def test_screenshot_issue(url):
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        response = page.goto(url, timeout=30000)
+async def test_screenshot_issue(url):
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        page = await browser.new_page()
+        response = await page.goto(url, timeout=30000)
 
         if response is None or not response.ok:
             return f"Failed to load {url}, status: {response.status}"
 
         # Check for lazy-loaded images
-        lazy_images = page.evaluate("() => document.querySelectorAll('img[loading=\"lazy\"]').length")
+        lazy_images = await page.evaluate("() => document.querySelectorAll('img[loading=\"lazy\"]').length")
 
         # Check for scrolling issues
-        body_overflow = page.evaluate("() => getComputedStyle(document.body).overflow")
+        body_overflow = await page.evaluate("() => getComputedStyle(document.body).overflow")
 
         # Check if the page dynamically loads content
-        js_loaded_content = page.evaluate("() => document.body.innerHTML.includes('scripts')")
+        js_loaded_content = await page.evaluate("() => document.body.innerHTML.includes('scripts')")
 
         # Check if an iframe is used
-        iframes = page.evaluate("() => document.querySelectorAll('iframe').length")
+        iframes = await page.evaluate("() => document.querySelectorAll('iframe').length")
 
-        browser.close()
+        await browser.close()
 
         return {
             "lazy_images_count": lazy_images,
@@ -155,8 +155,6 @@ def test_screenshot_issue(url):
         }
 
 print(test_screenshot_issue("https://www.chiragpariyani.com/"))
-
-
 
 @app.post("/analyze-ui")
 async def analyze_ui(
